@@ -2,13 +2,9 @@ import {
       Router
 } from 'express';
 
-import cartsModel from '../dao/models/carts.js';
-
 import Carts from "../dao/dbManagers/carts.js";
-import Products from "../dao/dbManagers/products.js";
 
 import {
-      handleTryError,
       handleTryErrorDB,
       validateData,
 } from '../helpers/handleErrors.js';
@@ -16,7 +12,6 @@ import {
 const cartsRouter = Router();
 const cartsManager = new Carts();
 
-const productsManager = new Products();
 
 cartsRouter.get('/', async (req, res) => {
 

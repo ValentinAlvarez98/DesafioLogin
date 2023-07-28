@@ -7,7 +7,8 @@ import {
       validateData
 } from '../helpers/handleErrors.js';
 import {
-      checkSession
+      checkSession,
+      ifSession
 } from '../helpers/handleSessions.js';
 import Products from "../dao/dbManagers/products.js";
 import Carts from "../dao/dbManagers/carts.js";
@@ -44,6 +45,9 @@ router.get('/chat', checkSession, async (req, res) => {
 router.get('/realtimeproducts', checkSession, async (req, res) => {
 
       try {
+
+            const userData = req.cookies.userData;
+
             // Obtiene todos los productos desde el fileManager.
             let products = await productsFsManager.getAll();
 
@@ -52,7 +56,9 @@ router.get('/realtimeproducts', checkSession, async (req, res) => {
 
             // Renderiza la vista realtimeproducts, pasando los productos como parámetro.
             res.render('realtimeproducts', {
-                  products
+                  products,
+                  userName: userData.first_name,
+                  userRole: userData.role
             });
 
       } catch (error) {
@@ -77,6 +83,14 @@ router.get('/products', checkSession, async (req, res) => {
                   query
             } = req.query;
 
+            const userData = req.cookies.userData;
+
+            // Se inicializa la variable isAdmin.
+            let isUser;
+
+            // Se valida si el usuario es user.
+            userData.role === "user" ? isUser = true : isUser = false;
+
             // Se obtienen los datos de los productos desde el Manager.
             const productsData = await productsManager.getAll({
                   limit,
@@ -99,6 +113,9 @@ router.get('/products', checkSession, async (req, res) => {
                   hasNextPage: productsData.hasNextPage,
                   prevPage: productsData.prevPage,
                   nextPage: productsData.nextPage,
+                  userName: userData.first_name,
+                  userRole: userData.role,
+                  isUser
             });
 
       } catch (error) {
@@ -181,12 +198,30 @@ router.get('/carts/:cartId', checkSession, async (req, res) => {
 
 });
 
-router.get('/', (req, res) => {
-      res.render('register');
+router.get('/', ifSession, (req, res) => {
+      try {
+
+            res.render('register');
+
+      } catch (error) {
+
+            handleTryError(res, error);
+
+      };
 });
 
-router.get('/login', (req, res) => {
-      res.render('login');
+router.get('/login', ifSession, (req, res) => {
+
+      try {
+
+            res.render('login');
+
+      } catch (error) {
+
+            handleTryError(res, error);
+
+      };
+
 });
 
 export default router;

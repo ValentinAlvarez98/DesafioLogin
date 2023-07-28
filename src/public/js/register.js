@@ -1,6 +1,6 @@
 const form = document.getElementById('registerForm');
 
-form.addEventListener('submit', e => {
+form.addEventListener('submit', (e) => {
 
       e.preventDefault();
 
@@ -13,23 +13,19 @@ form.addEventListener('submit', e => {
       });
 
       fetch('api/sessions/register', {
-                  method: 'POST',
-                  body: JSON.stringify(obj),
-                  headers: {
-                        'Content-Type': 'application/json',
-                  },
-            })
-            .then(response => {
-                  if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                  }
-                  return response.json();
-            })
-            .then(json => {
-                  console.log(json);
-            })
-            .catch(error => {
-                  console.error('Error:', error);
-            });
+            method: 'POST',
+            body: JSON.stringify(obj),
+            headers: {
+                  'Content-Type': 'application/json',
+            },
+      }).then(result => {
+            if (result.status === 200) {
+                  setTimeout(() => {
+                        window.location.replace('/login');
+                  }, 1250);
+            } else {
+                  alert('El usuario ya está registrado');
+            };
+      })
 
 });

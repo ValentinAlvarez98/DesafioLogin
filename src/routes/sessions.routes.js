@@ -13,9 +13,6 @@ import {
       cfgSession
 } from '../helpers/handleSessions.js';
 
-
-import usersModel from '../dao/models/users.js';
-
 const usersManager = new UsersManager();
 
 const sessionsRouter = Router();
@@ -75,12 +72,33 @@ sessionsRouter.post('/register', async (req, res) => {
 
             const result = await usersManager.registerUser(newUser);
 
-            validateData(!result, res, "No se pudo guardar el usuario en la base de datos");
+            validateData(!result, res, "El usuario ya está registrado");
 
             res.send({
                   status: "success",
                   payload: `El usuario ${newUser.first_name} ${newUser.last_name} se ha creado correctamente`
             });
+
+      } catch (error) {
+
+            handleTryErrorDB(error);
+
+      };
+
+});
+
+sessionsRouter.post('/logout', async (req, res) => {
+
+      try {
+
+            res.clearCookie('userData');
+            req.session.destroy((err) => {
+                  if (err) {
+                        console.log(err);
+                  };
+            });
+
+            res.redirect('/login');
 
       } catch (error) {
 

@@ -1,3 +1,5 @@
+import e from "express";
+
 export function isAdmin(email, password) {
 
       const admin = {
@@ -18,15 +20,14 @@ export function isAdmin(email, password) {
 
 export function checkSession(req, res, next) {
 
-
-      if (req.session && req.session.userLogged && req.cookies.userData) {
+      if (req.session && req.cookies.userData) {
 
             next();
 
       } else {
 
-            console.log("No hay ninguna sesión activa");
-            res.redirect('/login');
+            console.log("No hay ninguna sesión iniciada");
+            res.redirect('/');
 
       };
 
@@ -40,11 +41,27 @@ export function cfgSession(user, req, res) {
 
             req.session.user = user._id;
 
-            res.cookie('userData', {
-                  id: user._id,
-                  first_name: user.first_name,
-                  role: user.role
-            })
+            if (user.role === "admin") {
+
+                  res.cookie('userData', {
+                        first_name: user.first_name,
+                        role: user.role
+                  }, {
+                        maxAge: 60000
+                  });
+
+
+            } else {
+
+                  res.cookie('userData', {
+                        id: user._id,
+                        first_name: user.first_name,
+                        role: user.role
+                  }, {
+                        maxAge: 100000
+                  })
+
+            };
 
             res.send({
                   status: "success",
@@ -60,4 +77,18 @@ export function cfgSession(user, req, res) {
 
       };
 
-}
+};
+
+export function ifSession(req, res, next) {
+
+      if (req.session && req.cookies.userData) {
+
+            res.redirect('/products');
+
+      } else {
+
+            next();
+
+      };
+
+};

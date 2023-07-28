@@ -4,20 +4,24 @@ import {
 } from 'express';
 import {
       handleTryError,
+      handleTryErrorDB,
       validateData
 } from '../helpers/handleErrors.js';
 import {
       checkSession,
-      ifSession
+      ifSession,
+      isAdmin
 } from '../helpers/handleSessions.js';
 import Products from "../dao/dbManagers/products.js";
 import Carts from "../dao/dbManagers/carts.js";
+import Users from "../dao/dbManagers/users.js";
 
 import ProductsFs from "../dao/fileManagers/products.js";
 
 // Se crean las instancias de los Managers.
 const productsManager = new Products();
 const cartsManager = new Carts();
+const usersManager = new Users();
 
 const productsFsManager = new ProductsFs();
 
@@ -193,6 +197,39 @@ router.get('/carts/:cartId', checkSession, async (req, res) => {
       } catch (error) {
 
             handleTryError(res, error);
+
+      };
+
+});
+
+// Ruta para obtener el perfil del usuario.
+router.get('/profile', checkSession, async (req, res) => {
+
+      try {
+
+            const userData = req.cookies.userData;
+
+            const id = userData.id;
+
+            const admin = isAdmin(userData.email, userData.password);
+
+            validateData(admin !== false, res, "No se puede acceder al perfil del usuario administrador");
+
+            const user = await usersManager.getUser(null, id);
+
+            validateData(!user, res, "No se pudo obtener el perfil del usuario");
+
+            res.render('profile', {
+                  userName: userData.first_name,
+                  userLastName: user.last_name,
+                  userEmail: user.email,
+                  userRole: userData.role,
+                  userPhone: user.phone ? user.phone : "Teléfono",
+            });
+
+      } catch (error) {
+
+            handleTryErrorDB(error);
 
       };
 

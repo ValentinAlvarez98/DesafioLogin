@@ -7,12 +7,13 @@ import UsersManager from '../dao/dbManagers/users.js';
 import {
       handleTryErrorDB,
       validateData,
-      validateFields
+      validateFields,
+      phoneOptions
 } from '../helpers/handleErrors.js';
 import {
-      cfgSession
+      cfgSession,
+      isAdmin
 } from '../helpers/handleSessions.js';
-
 const usersManager = new UsersManager();
 
 const sessionsRouter = Router();
@@ -105,6 +106,54 @@ sessionsRouter.post('/logout', async (req, res) => {
             handleTryErrorDB(error);
 
       };
+
+});
+
+sessionsRouter.post('/profile', async (req, res) => {
+
+      try {
+            const {
+                  first_name,
+                  last_name,
+                  email,
+                  phone,
+            } = req.body;
+
+            const userData = req.cookies.userData;
+
+            const id = userData.id;
+
+            const isValid = validateFields(req.body, ['first_name', 'last_name', 'email']);
+
+            validateData(!isValid, res, "Faltan campos obligatorios");
+
+            const user = await usersManager.getUser(email, id);
+
+            validateData(!user, res, "El usuario no existe");
+
+            const newPhone = phoneOptions(user.phone, phone);
+
+            const userToUpdate = {
+                  ...req.body,
+                  phone: newPhone,
+                  role: user.role,
+                  password: user.password,
+            };
+
+            const result = await usersManager.updateUser(user.email, userToUpdate);
+
+            validateData(!result, res, "No se pudo actualizar el usuario");
+
+            const userUpdated = await usersManager.getUser(userToUpdate.email, null);
+
+            cfgSession(userUpdated, req, res);
+
+      } catch (error) {
+
+            handleTryErrorDB(error);
+
+      };
+
 
 });
 

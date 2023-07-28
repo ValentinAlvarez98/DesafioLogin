@@ -30,6 +30,10 @@ const usersSchema = new mongoose.Schema({
             default: 'user',
       },
 
+      phone: {
+            type: String,
+      },
+
 });
 
 const usersModel = mongoose.model(usersCollection, usersSchema);

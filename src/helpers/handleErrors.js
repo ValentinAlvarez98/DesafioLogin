@@ -55,3 +55,25 @@ export function handleTryError(res, error) {
       console.log(error);
 
 };
+
+export function phoneOptions(oldPhone, newPhone) {
+
+      if (newPhone === "0") {
+
+            return null;
+
+      } else if (newPhone === undefined) {
+
+            return oldPhone;
+
+      } else if (newPhone === oldPhone) {
+
+            return oldPhone;
+
+      } else {
+
+            return newPhone;
+
+      };
+
+};

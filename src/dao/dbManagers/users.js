@@ -19,7 +19,7 @@ export default class UsersManager {
       };
 
       // Método para obtener un usuario por su dirección de correo electrónico.
-      getUser = async (email) => {
+      getUser = async (email, id) => {
 
             try {
 
@@ -28,8 +28,14 @@ export default class UsersManager {
                         email
                   }).lean();
 
-                  // Si no se encuentra el usuario, se muestra un mensaje de error.
-                  validateDataDB(!user, "El usuario no existe");
+                  if (id) {
+
+                        // Se busca el usuario en la base de datos por su id.
+                        const user = await usersModel.findById(id).lean();
+
+                        return user;
+
+                  };
 
                   return user;
 
@@ -93,7 +99,7 @@ export default class UsersManager {
                   } else {
 
                         // Si el usuario no es un administrador, se verifica si existe en la base de datos.
-                        const exist = await this.getUser(user.email);
+                        const exist = await this.getUser(user.email, null);
 
                         // Se muestra un mensaje de error si el usuario no existe en la base de datos.
                         validateDataDB(!exist, "El usuario no existe");
@@ -103,6 +109,32 @@ export default class UsersManager {
 
                         return exist;
                   };
+
+            } catch (error) {
+
+                  // Se manejan los errores para las consultas a la base de datos.
+                  handleTryErrorDB(error);
+
+            };
+
+      };
+
+      // Método para obtener modificar un usuario de la base de datos.
+      updateUser = async (email, user) => {
+
+            try {
+
+                  // Se modifica el usuario por su dirección de correo electrónico.
+                  const result = await usersModel.findOneAndUpdate({
+                        email
+                  }, user, {
+                        new: true
+                  });
+
+                  // Se valida que el usuario se haya modificado correctamente.
+                  validateDataDB(!result, "No se pudo modificar el usuario");
+
+                  return result;
 
             } catch (error) {
 

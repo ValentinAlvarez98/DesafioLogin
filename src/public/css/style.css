@@ -4,6 +4,10 @@
 .visible {
   display: block; }
 
+  .aclaraciones {
+  font-size: 0.8rem;
+  color: grey !important; }
+
   main div {
   margin-top: 0.75rem;
   margin-bottom: 0.75rem; }

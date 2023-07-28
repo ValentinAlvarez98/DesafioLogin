@@ -1,5 +1,3 @@
-import e from "express";
-
 export function isAdmin(email, password) {
 
       const admin = {
@@ -58,7 +56,7 @@ export function cfgSession(user, req, res) {
                         first_name: user.first_name,
                         role: user.role
                   }, {
-                        maxAge: 100000
+                        maxAge: 900000
                   })
 
             };
